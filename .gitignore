@@ -4,3 +4,5 @@ release/
 resources/service/*.exe
 *.log
 .env
+Claude outputs/
+ci/

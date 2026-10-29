@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SignPath: artifact configuration "app"
+     Entrada: pasta release/win-unpacked (enviada como artefato do GitHub = ZIP)
+     Assina somente o executável próprio do projeto. DLLs do Electron e ferramentas de terceiros
+     (7za.exe, WinSW) são componentes upstream e não são assinados por este projeto. -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="API2Dev Backup.exe" product-name="API2Dev Backup">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

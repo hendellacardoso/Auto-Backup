@@ -5,6 +5,12 @@ Electron + React + Vite + JavaScript, com banco local **SQLite**.
 
 **API2Dev** · Desenvolvedor: Hendell Cardoso · suporte@api2dev.com.br · WhatsApp (62) 9.9314-8955
 
+[![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/hendellacardoso/Auto-Backup)](https://github.com/hendellacardoso/Auto-Backup/releases)
+
+**Download:** [GitHub Releases](https://github.com/hendellacardoso/Auto-Backup/releases) — instalador e versão portátil para Windows 10/11 (64 bits).
+Página do projeto: [api2dev.com.br/backup](https://api2dev.com.br/backup)
+
 ---
 
 ## Recursos
@@ -19,6 +25,38 @@ Electron + React + Vite + JavaScript, com banco local **SQLite**.
 - **Histórico** com filtros, log de cada execução, abrir pasta e exclusão
 - **Restauração** a partir do histórico (baixa do Drive/FTP se o arquivo local não existir) ou de um arquivo qualquer, com opção de restaurar com outro nome
 - Fica na **bandeja do sistema (systray)**, **inicia com o Windows** e pode ser instalado como **serviço do Windows**
+
+## Telas
+
+### Painel
+![Painel](docs/screenshots/01-painel.png)
+
+### Conexões
+| Lista de conexões | Nova conexão |
+|---|---|
+| ![Conexões](docs/screenshots/02-conexoes.png) | ![Nova conexão](docs/screenshots/03-nova-conexao.png) |
+
+### Tarefas de backup
+| Lista de tarefas | Edição da tarefa |
+|---|---|
+| ![Tarefas](docs/screenshots/04-tarefas.png) | ![Edição da tarefa](docs/screenshots/05-tarefa-edicao.png) |
+
+### Histórico e restauração
+| Histórico | Restaurar backup |
+|---|---|
+| ![Histórico](docs/screenshots/06-historico.png) | ![Restaurar](docs/screenshots/07-restaurar.png) |
+
+### Configurações
+| Geral | Serviço do Windows |
+|---|---|
+| ![Geral](docs/screenshots/08-config-geral.png) | ![Serviço](docs/screenshots/09-config-servico.png) |
+
+| Google Drive | FTP | E-mail |
+|---|---|---|
+| ![Google Drive](docs/screenshots/10-config-gdrive.png) | ![FTP](docs/screenshots/11-config-ftp.png) | ![E-mail](docs/screenshots/12-config-email.png) |
+
+### Sobre
+![Sobre](docs/screenshots/13-sobre.png)
 
 ## Requisitos
 
@@ -52,6 +90,12 @@ Dê duplo clique em um dos arquivos .bat na raiz do projeto (eles rodam `npm ins
 | `gerar-tudo.bat` | os dois |
 
 Ou pela linha de comando: `npm run dist:setup`, `npm run dist:portable` ou `npm run dist`.
+
+### Release no GitHub (com assinatura)
+
+`publicar-release.bat` envia o código e cria a tag `vX.Y.Z`. O GitHub Actions ([`release.yml`](.github/workflows/release.yml))
+gera o instalador e o portátil no Windows, assina pela SignPath e publica em [Releases](https://github.com/hendellacardoso/Auto-Backup/releases).
+Configuração da assinatura: [docs/SIGNPATH.md](docs/SIGNPATH.md).
 
 A versão portátil roda na bandeja e inicia com o Windows, mas **não instala o serviço do Windows**
 (ela é extraída em uma pasta temporária a cada execução). Para usar o serviço, use o instalador.
@@ -97,3 +141,38 @@ Banco SQLite, logs e backups padrão ficam em `C:\ProgramData\API2Dev\SistemaBac
 - **Oracle**: cada item listado é um *schema*. O dump é gerado no DIRECTORY do servidor e movido para a pasta de backups.
 - **Google Drive**: crie um *ID do cliente OAuth* do tipo **App para computador** no Google Cloud Console (com a Drive API ativada).
   O app usa o escopo `drive.file` e cria a pasta de destino automaticamente.
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+Os executáveis publicados em [Releases](https://github.com/hendellacardoso/Auto-Backup/releases) são gerados pelo
+GitHub Actions ([`.github/workflows/release.yml`](.github/workflows/release.yml)) a partir do código deste repositório e
+assinados pela SignPath. Cada pedido de assinatura é aprovado manualmente.
+
+**Team roles / Papéis da equipe**
+
+| Papel | Membros |
+|---|---|
+| Committers and reviewers (autores e revisores) | [Hendell Cardoso](https://github.com/hendellacardoso) |
+| Approvers (aprovadores das assinaturas) | [Hendell Cardoso](https://github.com/hendellacardoso) |
+
+## Privacy policy
+
+This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it.
+
+O API2Dev Backup não envia dados para a API2Dev nem para terceiros. Ele só se conecta aos sistemas que o próprio usuário
+configura: os servidores de banco de dados, o Google Drive (conta autorizada pelo usuário), o servidor FTP e o servidor
+de e-mail (SMTP). As configurações e senhas ficam somente no computador, em `C:\ProgramData\API2Dev\SistemaBackup`,
+criptografadas.
+
+## Desinstalação
+
+- **Instalador:** Configurações do Windows → Aplicativos → *API2Dev Backup* → Desinstalar (o serviço do Windows, se instalado, é removido junto).
+- **Portátil:** feche o programa pela bandeja (*Sair*) e apague o executável.
+- Os dados e backups em `C:\ProgramData\API2Dev\SistemaBackup` são mantidos; apague a pasta se não precisar mais deles.
+
+## Licença
+
+[MIT](LICENSE) © 2026 Hendell Cardoso - API2Dev
+

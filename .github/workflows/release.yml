@@ -1,0 +1,151 @@
+# Build e release do API2Dev Backup (Windows x64)
+#
+# Dispara ao enviar uma tag "v*" (ex.: v1.0.0) ou manualmente (Actions > Release > Run workflow).
+#
+# Assinatura com a SignPath (SignPath Foundation):
+#   - Ativada quando o secret SIGNPATH_API_TOKEN e a variável SIGNPATH_ORGANIZATION_ID existem no repositório.
+#   - Sem eles, o workflow gera e publica os executáveis SEM assinatura (útil para a primeira release).
+#   1. O app empacotado (release/win-unpacked) é enviado para assinar "API2Dev Backup.exe".
+#   2. O instalador e o portátil são gerados a partir do app já assinado e enviados para assinar também.
+#   Cada pedido de assinatura precisa ser aprovado manualmente no painel da SignPath.
+
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  SIGNPATH_PROJECT_SLUG: Auto-Backup
+  SIGNPATH_POLICY_SLUG: release-signing
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      ASSINAR: ${{ secrets.SIGNPATH_API_TOKEN != '' && vars.SIGNPATH_ORGANIZATION_ID != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Versão
+        id: versao
+        shell: pwsh
+        run: |
+          $v = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          "versao=$v" >> $env:GITHUB_OUTPUT
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$v") {
+            throw "A tag $env:GITHUB_REF_NAME não corresponde à versão do package.json (v$v)."
+          }
+          Write-Host "Versão: $v  |  Assinar: $env:ASSINAR"
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Empacotar o aplicativo (win-unpacked)
+        run: npm run dist:dir
+
+      # ------------------------------------------------ assinatura 1: executável do aplicativo
+      - name: Enviar app para assinatura
+        if: env.ASSINAR == 'true'
+        id: app-sem-assinatura
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-sem-assinatura
+          path: release/win-unpacked/
+          if-no-files-found: error
+
+      - name: Assinar app (SignPath)
+        if: env.ASSINAR == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ env.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: app
+          github-artifact-id: ${{ steps.app-sem-assinatura.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: assinado/app
+
+      - name: Usar app assinado
+        if: env.ASSINAR == 'true'
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force release/win-unpacked
+          Copy-Item -Recurse assinado/app release/win-unpacked
+          Get-AuthenticodeSignature "release/win-unpacked/API2Dev Backup.exe" | Format-List Status, SignerCertificate
+
+      # ------------------------------------------------ instalador e portátil
+      - name: Gerar instalador e portátil
+        run: npm run dist:instaladores
+
+      - name: Enviar instaladores para assinatura
+        if: env.ASSINAR == 'true'
+        id: instaladores-sem-assinatura
+        uses: actions/upload-artifact@v4
+        with:
+          name: instaladores-sem-assinatura
+          path: |
+            release/API2Dev-Backup-Setup-${{ steps.versao.outputs.versao }}.exe
+            release/API2Dev-Backup-Portatil-${{ steps.versao.outputs.versao }}.exe
+          if-no-files-found: error
+
+      - name: Assinar instaladores (SignPath)
+        if: env.ASSINAR == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ env.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: instaladores
+          github-artifact-id: ${{ steps.instaladores-sem-assinatura.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: assinado/instaladores
+
+      - name: Usar instaladores assinados
+        if: env.ASSINAR == 'true'
+        shell: pwsh
+        run: Copy-Item -Force assinado/instaladores/*.exe release/
+
+      # ------------------------------------------------ publicação
+      - name: SHA-256
+        shell: pwsh
+        run: |
+          Get-ChildItem release/API2Dev-Backup-*.exe | ForEach-Object {
+            "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
+          } | Set-Content -Encoding utf8 release/SHA256SUMS.txt
+          Get-Content release/SHA256SUMS.txt
+
+      - name: Guardar executáveis
+        uses: actions/upload-artifact@v4
+        with:
+          name: API2Dev-Backup-${{ steps.versao.outputs.versao }}
+          path: |
+            release/API2Dev-Backup-*.exe
+            release/SHA256SUMS.txt
+
+      - name: Publicar release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: API2Dev Backup ${{ steps.versao.outputs.versao }}
+          body_path: .github/release-notes.md
+          files: |
+            release/API2Dev-Backup-Setup-${{ steps.versao.outputs.versao }}.exe
+            release/API2Dev-Backup-Portatil-${{ steps.versao.outputs.versao }}.exe
+            release/SHA256SUMS.txt

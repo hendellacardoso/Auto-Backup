@@ -4,7 +4,7 @@ chcp 65001 >nul
 title API2Dev Backup - Enviar para o GitHub
 cd /d "%~dp0"
 
-set "REPO=https://github.com/hendellacardoso/api2dev-backup.git"
+set "REPO=https://github.com/hendellacardoso/Auto-Backup.git"
 set "BRANCH=main"
 
 echo ==========================================================
@@ -18,6 +18,12 @@ if errorlevel 1 (
   echo [ERRO] Git nao encontrado. Instale em https://git-scm.com/download/win
   pause
   exit /b 1
+)
+
+rem ---------------------------------------------- copia o workflow do GitHub Actions (ci\github -> .github)
+if exist "ci\github" (
+  xcopy /e /i /y /q "ci\github" ".github" >nul
+  echo Workflow do GitHub Actions atualizado em .github
 )
 
 rem ---------------------------------------------- inicializa o repositorio
@@ -78,7 +84,8 @@ git push -u origin %BRANCH% || goto :erro
 
 echo.
 echo [OK] Codigo enviado para %REPO%
-start "" "https://github.com/hendellacardoso/api2dev-backup"
+if /i "%~1"=="/semabrir" exit /b 0
+start "" "https://github.com/hendellacardoso/Auto-Backup"
 pause
 exit /b 0
 

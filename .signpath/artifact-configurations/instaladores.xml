@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SignPath: artifact configuration "instaladores"
+     Entrada: ZIP com API2Dev-Backup-Setup-<versão>.exe e API2Dev-Backup-Portatil-<versão>.exe -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file-set>
+      <include path="API2Dev-Backup-Setup-*.exe" min-matches="1" max-matches="1" />
+      <include path="API2Dev-Backup-Portatil-*.exe" min-matches="1" max-matches="1" />
+      <for-each>
+        <authenticode-sign />
+      </for-each>
+    </pe-file-set>
+  </zip-file>
+</artifact-configuration>
