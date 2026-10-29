@@ -14,7 +14,8 @@ rem ============================================================================
 where git >nul 2>nul || (echo [ERRO] Git nao encontrado. & pause & exit /b 1)
 where node >nul 2>nul || (echo [ERRO] Node.js nao encontrado. & pause & exit /b 1)
 
-for /f "delims=" %%v in ('node -p "require('./package.json').version"') do set "VERSAO=%%v"
+for /f "usebackq delims=" %%v in (`node -p "require('./package.json').version"`) do set "VERSAO=%%v"
+if not defined VERSAO (echo [ERRO] Nao foi possivel ler a versao do package.json. & pause & exit /b 1)
 echo Versao atual no package.json: %VERSAO%
 set "NOVA="
 set /p "NOVA=Nova versao (Enter = publicar %VERSAO%): "
