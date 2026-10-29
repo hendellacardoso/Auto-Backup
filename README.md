@@ -8,7 +8,7 @@ Electron + React + Vite + JavaScript, com banco local **SQLite**.
 [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/hendellacardoso/Auto-Backup)](https://github.com/hendellacardoso/Auto-Backup/releases)
 
-**Download:** [GitHub Releases](https://github.com/hendellacardoso/Auto-Backup/releases) — instalador e versão portátil para Windows 10/11 (64 bits).
+**Download (última versão, Windows 10/11 64 bits):** [Instalador](https://github.com/hendellacardoso/Auto-Backup/releases/latest/download/API2Dev-Backup.exe) · [Portátil](https://github.com/hendellacardoso/Auto-Backup/releases/latest/download/API2Dev-Backup-Portatil.exe) · [todas as versões](https://github.com/hendellacardoso/Auto-Backup/releases)
 Página do projeto: [api2dev.com.br/backup](https://api2dev.com.br/backup)
 
 ---
@@ -55,8 +55,6 @@ Página do projeto: [api2dev.com.br/backup](https://api2dev.com.br/backup)
 |---|---|---|
 | ![Google Drive](docs/screenshots/10-config-gdrive.png) | ![FTP](docs/screenshots/11-config-ftp.png) | ![E-mail](docs/screenshots/12-config-email.png) |
 
-### Sobre
-![Sobre](docs/screenshots/13-sobre.png)
 
 ## Requisitos
 

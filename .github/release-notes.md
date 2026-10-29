@@ -5,8 +5,8 @@ envio para Google Drive e FTP, notificação por e-mail, histórico e restauraç
 
 | Arquivo | Descrição |
 |---|---|
-| `API2Dev-Backup-Setup-<versão>.exe` | Instalador (permite instalar o serviço do Windows) |
-| `API2Dev-Backup-Portatil-<versão>.exe` | Versão portátil, sem instalação |
+| `API2Dev-Backup.exe` | Instalador (permite instalar o serviço do Windows) |
+| `API2Dev-Backup-Portatil.exe` | Versão portátil, sem instalação |
 | `SHA256SUMS.txt` | Hashes SHA-256 dos executáveis |
 
 **Code signing:** Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).

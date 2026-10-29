@@ -123,29 +123,55 @@ jobs:
         run: Copy-Item -Force assinado/instaladores/*.exe release/
 
       # ------------------------------------------------ publicação
-      - name: SHA-256
+      # Nomes fixos (sem versão) para o link de download nunca mudar:
+      #   https://github.com/hendellacardoso/Auto-Backup/releases/latest/download/API2Dev-Backup.exe   (instalador)
+      #   https://github.com/hendellacardoso/Auto-Backup/releases/latest/download/API2Dev-Backup-Portatil.exe
+      - name: Nomes finais e SHA-256
         shell: pwsh
         run: |
-          Get-ChildItem release/API2Dev-Backup-*.exe | ForEach-Object {
+          $v = '${{ steps.versao.outputs.versao }}'
+          New-Item -ItemType Directory -Force publicar | Out-Null
+          Copy-Item "release/API2Dev-Backup-Setup-$v.exe"    publicar/API2Dev-Backup.exe
+          Copy-Item "release/API2Dev-Backup-Portatil-$v.exe" publicar/API2Dev-Backup-Portatil.exe
+          Get-ChildItem publicar/*.exe | ForEach-Object {
             "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
-          } | Set-Content -Encoding utf8 release/SHA256SUMS.txt
-          Get-Content release/SHA256SUMS.txt
+          } | Set-Content -Encoding utf8 publicar/SHA256SUMS.txt
+          Get-Content publicar/SHA256SUMS.txt
 
       - name: Guardar executáveis
         uses: actions/upload-artifact@v4
         with:
           name: API2Dev-Backup-${{ steps.versao.outputs.versao }}
-          path: |
-            release/API2Dev-Backup-*.exe
-            release/SHA256SUMS.txt
+          path: publicar/
 
+      # Publica na tag enviada (publicar-release.bat) ou, ao rodar manualmente em Actions > Release > Run workflow,
+      # cria a tag v<versão do package.json> automaticamente.
       - name: Publicar release
-        if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.versao.outputs.versao }}
+          target_commitish: ${{ github.sha }}
           name: API2Dev Backup ${{ steps.versao.outputs.versao }}
           body_path: .github/release-notes.md
+          make_latest: true
           files: |
-            release/API2Dev-Backup-Setup-${{ steps.versao.outputs.versao }}.exe
-            release/API2Dev-Backup-Portatil-${{ steps.versao.outputs.versao }}.exe
-            release/SHA256SUMS.txt
+            publicar/API2Dev-Backup.exe
+            publicar/API2Dev-Backup-Portatil.exe
+            publicar/SHA256SUMS.txt
+
+      # Remove da release arquivos com outros nomes (ex.: os antigos com a versão no nome)
+      - name: Limpar arquivos antigos da release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = 'v${{ steps.versao.outputs.versao }}'
+          $manter = @('API2Dev-Backup.exe', 'API2Dev-Backup-Portatil.exe', 'SHA256SUMS.txt')
+          $assets = (gh release view $tag --repo $env:GITHUB_REPOSITORY --json assets | ConvertFrom-Json).assets
+          foreach ($a in $assets) {
+            if ($manter -notcontains $a.name) {
+              Write-Host "Removendo $($a.name)"
+              gh release delete-asset $tag $a.name --repo $env:GITHUB_REPOSITORY --yes
+            }
+          }
+
