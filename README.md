@@ -55,6 +55,8 @@ Página do projeto: [api2dev.com.br/backup](https://api2dev.com.br/backup)
 |---|---|---|
 | ![Google Drive](docs/screenshots/10-config-gdrive.png) | ![FTP](docs/screenshots/11-config-ftp.png) | ![E-mail](docs/screenshots/12-config-email.png) |
 
+### Sobre
+![Sobre](docs/screenshots/13-sobre.png)
 
 ## Requisitos
 

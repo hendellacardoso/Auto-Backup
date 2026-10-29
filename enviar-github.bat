@@ -53,6 +53,10 @@ set /p "MSG=Mensagem do commit (Enter = Atualizacao %date% %time:~0,5%): "
 if not defined MSG set "MSG=Atualizacao %date% %time:~0,5%"
 
 git add -A || goto :erro
+rem conclui uma mesclagem pendente (conflito ja resolvido)
+if exist ".git\MERGE_HEAD" (
+  git commit --no-edit || goto :erro
+)
 git diff --cached --quiet
 if errorlevel 1 (
   git commit -m "!MSG!" || goto :erro
